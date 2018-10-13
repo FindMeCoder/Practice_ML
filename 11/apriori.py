@@ -74,18 +74,18 @@ def generateRules(L,supportData,minConf):
     bigRuleList=[]
     for i in range(1,len(L)):
         for freqSet in L[i]:
-            H1=[frozenset([item] for item in freqSet)]
+            H1=[frozenset([item]) for item in freqSet]
             if (i>1):
-                rulesFromConseq(freqSet,H1,supportData,bigRuleList,minConf)
+                ruleFromConseq(freqSet,H1,supportData,bigRuleList,minConf)
             else:
                 calcConf(freqSet,H1,supportData,bigRuleList,minConf)
     return bigRuleList
 
-#找到满足最小可行度的要求
-def calcConf(freqSet,H,supportData,minConf=0.7):
+#找到满足最小可行度的要求,某条规则不能满足最小可行度要求的话，所有子集也不会满足
+def calcConf(freqSet,H,supportData,br1,minConf=0.7):
     prunedH=[]
     for conseq in H:
-        conf=supportData[freqSet]/supportData(freqSet-conseq)
+        conf=supportData[freqSet]/supportData[freqSet-conseq]
         if conf>minConf:
             print(freqSet-conseq,'-->',conseq,'conf:',conf)
             br1.append((freqSet-conseq,conseq,conf))
@@ -95,7 +95,7 @@ def calcConf(freqSet,H,supportData,minConf=0.7):
 def ruleFromConseq(freqSet,H,supportData,br1,minConf=0.7):
     m=len(H[0])
     if (len(freqSet)>m+1):
-        Hmp1=aprioriGen(H,m+1)
+        Hmp1=aprioriGen(H,m+1) #创建m+1条新规则
         Hmp1=calcConf(freqSet,Hmp1,supportData,br1,minConf)
         if (len(Hmp1)>1):
             ruleFromConseq(freqSet,Hmp1,supportData,br1,minConf)
